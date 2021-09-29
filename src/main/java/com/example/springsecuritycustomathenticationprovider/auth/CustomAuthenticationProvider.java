@@ -1,7 +1,6 @@
 package com.example.springsecuritycustomathenticationprovider.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,27 +19,29 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     /**
      * Note - UsernamePasswordAuthenticationToken is the default implementation fo Authentication Requst in Case of
-     *  BasicAuth Enabled which is default Spring Authentication in Spring Security.
+     * BasicAuth Enabled which is default Spring Authentication in Spring Security.
+     *
      * @param authentication
      * @return
      * @throws AuthenticationException
      */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        if(authentication instanceof  UsernamePasswordAuthenticationToken){
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = (UsernamePasswordAuthenticationToken)authentication;
-            if(usernamePasswordAuthenticationToken.getName() == null){
+        if (authentication instanceof UsernamePasswordAuthenticationToken) {
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = (UsernamePasswordAuthenticationToken) authentication;
+            if (usernamePasswordAuthenticationToken.getName() == null) {
                 throw new IllegalArgumentException("Principle name is not found");
             }
             UserDetails userDetails = userDetailsService.loadUserByUsername(authentication.getName());
-            if(passwordEncoder.matches(authentication.getCredentials().toString(), userDetails.getPassword())){
+            if (passwordEncoder.matches(authentication.getCredentials().toString(), userDetails.getPassword())) {
                 return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
-            }else{
+            } else {
                 throw new BadCredentialsException("Bad Credential Provided");
             }
-        }else{
+        } else {
             return null;
         }
     }
